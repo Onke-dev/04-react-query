@@ -5,7 +5,6 @@ interface MovieResponse {
   results: Movie[];
   page: number;
   total_pages: number;
-
 }
 
 interface MovieResponseParams {
@@ -18,8 +17,8 @@ const token = import.meta.env.VITE_TMDB_TOKEN;
 const fetchMovies = async ({
   query,
   page,
-}: MovieResponseParams): Promise<Movie[]> => {
-  const { data } = await axios.get<MovieResponse>(
+}: MovieResponseParams): Promise<MovieResponse> => {
+  const response = await axios.get<MovieResponse>(
     `https://api.themoviedb.org/3/search/movie`,
     {
       params: {
@@ -31,7 +30,7 @@ const fetchMovies = async ({
       },
     },
   );
-  return data.results;
+  return response.data;
 };
 
 export default fetchMovies;

@@ -10,22 +10,22 @@ import { keepPreviousData, useQuery } from "@tanstack/react-query";
 import Pagination from "../ReactPaginate/ReactPaginate";
 
 function App() {
-  const [movies, setMovie] = useState("");
-  const [page, setPage] = useState(0);
+  const [topic, setTopic] = useState("");
+  const [page, setPage] = useState(1);
   const [selectMovie, setSelectMovie] = useState<Movie | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
 
   const { data, isError, isLoading, isSuccess } = useQuery({
-    queryKey: ["movies", movies, page],
-    queryFn: () => fetchMovies({ query: movies, page }),
-    enabled: movies !== "",
+    queryKey: ["movies", topic, page],
+    queryFn: () => fetchMovies({ query: topic, page }),
+    enabled: topic !== "",
     placeholderData: keepPreviousData,
   });
 
-  const totalPages = data?.length ?? 0;
+  const totalPages = data?.total_pages ?? 0;
 
   const handleSubmit = async (movie: string) => {
-    setMovie(movie);
+    setTopic(movie);
     setPage(1);
   };
 
@@ -42,11 +42,15 @@ function App() {
     <>
       <SearchBar onSubmit={handleSubmit} />
       {isSuccess && totalPages > 1 && (
-        <Pagination totalPages={totalPages} page={page} setPage={setPage} />
+        <Pagination
+          pageCount={totalPages}
+          forcePage={page}
+          onPageChange={setPage}
+        />
       )}
-      {data && data.length > 0 && (
+      {data && data.results.length > 0 && (
         <MovieGrid
-          movies={data}
+          movies={data.results}
           onSelect={(movie: Movie) => openModal(movie)}
         />
       )}
