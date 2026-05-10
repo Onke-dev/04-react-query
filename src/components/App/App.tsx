@@ -2,12 +2,13 @@ import SearchBar from "../SearchBar/SearchBar";
 import fetchMovies from "../../services/movieService";
 import MovieGrid from "../MovieGrid/MovieGrid";
 import type { Movie } from "../../types/movie";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import MovieModal from "../MovieModal/MovieModal";
 import Loader from "../Loader/Loader";
 import ErrorMessage from "../ErrorMessage/ErrorMessage";
 import { keepPreviousData, useQuery } from "@tanstack/react-query";
 import Pagination from "../ReactPaginate/ReactPaginate";
+import toast, { Toaster } from "react-hot-toast";
 
 function App() {
   const [topic, setTopic] = useState("");
@@ -24,7 +25,17 @@ function App() {
 
   const totalPages = data?.total_pages ?? 0;
 
+  useEffect(() => {
+    if (isSuccess && data && data.results.length === 0) {
+      toast.error("No movies found for your request.");
+    }
+  }, [isSuccess, data]);
+
   const handleSubmit = async (movie: string) => {
+    if (movie.trim().length === 0) {
+      toast.error("Please enter a movie name.");
+      return;
+    }
     setTopic(movie);
     setPage(1);
   };
@@ -40,6 +51,7 @@ function App() {
 
   return (
     <>
+      <Toaster position="top-center"/>
       <SearchBar onSubmit={handleSubmit} />
       {isSuccess && totalPages > 1 && (
         <Pagination
